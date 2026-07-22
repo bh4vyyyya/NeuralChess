@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>NeuralChess — Play vs a Bot That Shows Its Work</title>
+<link rel="stylesheet" href="chess.css">
+</head>
+<body>
+
+<a href="#board" class="skip-link">Skip to chessboard</a>
+<canvas id="bg-canvas"></canvas>
+<div id="announcer" class="sr-only" aria-live="assertive" aria-atomic="true"></div>
+
+<header>
+  <h1>Neural<span>Chess</span></h1>
+  <div class="sub">a chess bot with the hood popped open — every evaluation, every pruned branch, every number, live</div>
+  <div style="display:flex; margin-left:auto; align-items:center;">
+    <a href="https://github.com/bh4vyyyya/NeuralChess" target="_blank" rel="noopener noreferrer" title="View on GitHub" aria-label="View source on GitHub" style="display: inline-flex; text-decoration: none;">
+      <button class="Btn" style="margin: 0;" type="button" tabindex="-1">
+        <span class="svgContainer">
+          <svg fill="white" viewBox="0 0 496 512" height="1.6em"><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"></path></svg>
+        </span>
+        <span class="BG"></span>
+      </button>
+    </a>
+  </div>
+</header>
+
+<div class="layout">
+
+  <div class="board-wrap">
+    <div class="board-frame">
+      <div id="board"></div>
+      <svg id="overlay" viewBox="0 0 8 8"></svg>
+    </div>
+    <div class="controls">
+      <button class="primary" id="newGameBtn">New game</button>
+      <button id="undoBtn">Undo</button>
+      <button id="flipBtn">Flip board</button>
+      <label style="font-size:12px;color:var(--dim);">You play:
+        <select id="sideSel">
+          <option value="w">White</option>
+          <option value="b">Black</option>
+        </select>
+      </label>
+      <label style="font-size:12px;color:var(--dim);">Bot depth:
+        <select id="depthSel">
+          <option value="1">1 — instant</option>
+          <option value="2" selected>2 — fast</option>
+          <option value="3">3 — thinks</option>
+          <option value="4">4 — slow, sharp</option>
+        </select>
+      </label>
+    </div>
+    <div class="controls" style="margin-top:2px;">
+      <label style="font-size:12px;color:var(--dim); display:flex; align-items:center; gap:8px; width:100%;">
+        Viewing speed:
+        <input type="range" id="speedSlider" min="0" max="600" value="150" style="flex:1;">
+        <span id="speedLabel" style="font-family:var(--mono); width:76px; text-align:right;">150ms/move</span>
+      </label>
+    </div>
+    <div class="status-line" id="statusLine" aria-live="polite">White to move.</div>
+    <div>
+      <div class="capt-row" id="captWhite"></div>
+      <div class="capt-row" id="captBlack"></div>
+    </div>
+  </div>
+
+  <div class="think-panel">
+    <h2><span class="dot" id="liveDot"></span> Bot reasoning</h2>
+
+    <div class="metric-row">
+      <div class="metric"><div class="v" id="mNodes">0</div><div class="l">Nodes searched</div></div>
+      <div class="metric"><div class="v" id="mPruned">0</div><div class="l">Branches pruned (αβ)</div></div>
+      <div class="metric"><div class="v" id="mDepth">0</div><div class="l">Search depth</div></div>
+      <div class="metric"><div class="v" id="mTime">0ms</div><div class="l">Time taken</div></div>
+    </div>
+
+    <div>
+      <div class="section-label">Position evaluation (bot's perspective, centipawns)</div>
+      <div class="eval-bar-wrap">
+        <div class="eval-bar"><div class="fill" id="evalFill"></div></div>
+        <div class="eval-num" id="evalNum">0.00</div>
+      </div>
+    </div>
+
+    <div>
+      <div class="section-label">How the score is built right now</div>
+      <div class="formula" id="formulaBox">Waiting for first move…</div>
+    </div>
+
+    <div>
+      <div class="section-label">Root move candidates, best→worst</div>
+      <div class="movecand"><table id="candTable">
+        <thead><tr><th>#</th><th>Move</th><th>Score</th><th>Notes</th></tr></thead>
+        <tbody id="candBody"></tbody>
+      </table></div>
+    </div>
+
+    <div>
+      <div class="section-label">Live search log</div>
+      <div class="log" id="logBox">Ready. Make a move to begin.</div>
+    </div>
+  </div>
+
+</div>
+
+
+
+<script src="chess.js"></script>
+</body>
+</html>
