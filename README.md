@@ -18,5 +18,6 @@ A chess project exploring AI, neural networks, and game programming.<br>
 
 ## License
 MIT
+##
 <br>
 <sub>Assisted by AI</sub>
